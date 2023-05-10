@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import { AiFillGithub } from "react-icons/ai";
+import { signIn } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc";
 import { useCallback, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -11,8 +12,8 @@ import {
   useForm
 } from "react-hook-form";
 
+import useLoginModal from "@/app/hooks/useLoginModal";
 import useRegisterModal from "@/app/hooks/useRegisterModal";
-import { signIn } from "next-auth/react";
 
 import Modal from "./Modal";
 import Input from "../inputs/Input";
@@ -21,6 +22,7 @@ import Button from "../Button";
 
 const RegisterModal= () => {
   const registerModal = useRegisterModal();
+  const loginModal = useLoginModal();
   const [isLoading, setIsLoading] = useState(false);
 
   const { 
@@ -44,7 +46,7 @@ const RegisterModal= () => {
     .then(() => {
       toast.success('Registered!');
       registerModal.onClose();
-      
+      loginModal.onOpen();
     })
     .catch((error) => {
       toast.error(error);
@@ -56,8 +58,8 @@ const RegisterModal= () => {
 
   const onToggle = useCallback(() => {
     registerModal.onClose();
-  
-  }, [registerModal])
+    loginModal.onOpen();
+  }, [registerModal, loginModal])
 
   const bodyContent = (
     <div className="flex flex-col gap-4">
@@ -144,4 +146,4 @@ const RegisterModal= () => {
   );
 }
 
-export default RegisterModal; 
+export default RegisterModal;
