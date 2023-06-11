@@ -1,34 +1,27 @@
 import { NextResponse } from "next/server";
+import bcrypt from "bcrypt";
 
-import getCurrentUser from "@/app/actions/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
 
-interface IParams {
-  listingId?: string;
-}
-
-export async function DELETE(
+export async function POST(
   request: Request, 
-  { params }: { params: IParams }
 ) {
-  const currentUser = await getCurrentUser();
+  const body = await request.json();
+  const { 
+    email,
+    name,
+    password,
+   } = body;
 
-  if (!currentUser) {
-    return NextResponse.error();
-  }
+   const hashedPassword = await bcrypt.hash(password, 12);
 
-  const { listingId } = params;
-
-  if (!listingId || typeof listingId !== 'string') {
-    throw new Error('Invalid ID');
-  }
-
-  const listing = await prisma.listing.deleteMany({
-    where: {
-      id: listingId,
-      userId: currentUser.id
+   const user = await prisma.user.create({
+    data: {
+      email,
+      name,
+      hashedPassword,
     }
   });
 
-  return NextResponse.json(listing);
+  return NextResponse.json(user);
 }
